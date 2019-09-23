@@ -98,7 +98,13 @@ class Train implements Runnable {
         while (true){
             if (currentSensor.getSemaphore().tryAcquire()){
                 try {
+                    // När vi har Semaphoren
                     currentSensor.getSemaphore().acquire();
+
+                    // Om vi bör ändra switches så ändra dem
+                    if (shouldChangeSwitches()) changeSwitches();
+
+
                     currentSensor.getSemaphore().notify();
                     currentSensor.getSemaphore().release();
                 } catch (InterruptedException e) {
@@ -107,6 +113,7 @@ class Train implements Runnable {
             }
             else {
                 try {
+                    shouldWaitAtSensor()
                     currentSensor.wait();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -115,9 +122,27 @@ class Train implements Runnable {
         }
     }
 
-    // Kolla om vi behöver ändra switchar
-    //
-    //
+    private void changeSwitches() {
+
+    }
+
+
+    // 3 Checks som bör göra varje gång vi kommer till en Sensor.
+
+    public boolean shouldChangeSwitches(){
+        return false;
+    }
+
+    public boolean shouldWaitAtSensor(){
+        // Kanske bör lägga in currentSensor.getSemaphore.wait();
+        return false;
+    }
+
+    public boolean shouldAllowForPassing(){
+        return false;
+    }
+
+
 
 
 
