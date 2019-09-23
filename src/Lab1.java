@@ -55,7 +55,6 @@ public class Lab1 {
 class Sensor{
     int x;
     int y;
-    // Semaphore som delas mellan
     private Semaphore semaphore;
 
     public Sensor(int x, int y) {
@@ -82,6 +81,7 @@ class Train implements Runnable {
     }
 
     private int velocity = 15;
+    private TSimInterface tSimInterface;
     private final int waitTime = 1000 * (20 * velocity);
     // Som den ibland kan hålla -> Möjligt att den inte behöver en egen
     private Sensor currentSensor;
@@ -91,6 +91,10 @@ class Train implements Runnable {
         return velocity;
     }
 
+    public Train(int velocity, TSimInterface tSimInterface) {
+        this.velocity = velocity;
+        this.tSimInterface = tSimInterface;
+    }
 
     @Override
     public synchronized void run() {
@@ -107,13 +111,14 @@ class Train implements Runnable {
 
                     currentSensor.getSemaphore().notify();
                     currentSensor.getSemaphore().release();
-                } catch (InterruptedException e) {
+                }
+                catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
             else {
                 try {
-                    shouldWaitAtSensor()
+                    shouldWaitAtSensor();
                     currentSensor.wait();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -142,10 +147,6 @@ class Train implements Runnable {
         return false;
     }
 
-
-
-
-
 }
 
 
@@ -158,9 +159,13 @@ class TrainCoordinator implements Runnable{
 
     // TODO: 2019-09-19 - Skapa constructor för att passera hastigheten till tågen
 
+    final int train1Velocity;
+    final int train2Velocity;
+
     final Thread train1 = new Thread(new Train());
     final Thread train2 = new Thread(new Train());
 
+    final TSimInterface tSimInterface;
     final Semaphore firstSemaphore = new Semaphore(1);
     final Semaphore secondSemaphore = new Semaphore(1);
     final Semaphore thirdSemaphore = new Semaphore(1);
@@ -174,8 +179,11 @@ class TrainCoordinator implements Runnable{
             new Sensor(11,7, firstSemaphore),
     };
 
-
-    final TSimInterface tSimInterface = TSimInterface.getInstance();
+    public TrainCoordinator(int train1Velocity, int train2Velocity, TSimInterface tSimInterface) {
+        this.train1Velocity = train1Velocity;
+        this.train2Velocity = train2Velocity;
+        this.tSimInterface = tSimInterface;
+    }
 
 
     @Override
